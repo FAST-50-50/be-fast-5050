@@ -16,22 +16,10 @@ class UserDetail extends Model
         'fullname',
         'nickname',
         'birth_year',
-        'whatsapp_number',
-        'instagram_handle',
+        'wa',
+        'ig',
         'telu_relation',
-        'joined_since',
-        'total_matches',
-        'preferred_positions',
-        'favorite_position',
-        'least_favorite_position',
-        'game_types',
-        'favorite_team',
-        'experience_level',
-        'owned_jerseys',
-        'photo',
-        'skills',
-        'benefit',
-        'suggestion'
+        'skills'
     ];
 
     /**
@@ -41,4 +29,5 @@ class UserDetail extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 }

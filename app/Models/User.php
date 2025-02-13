@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,9 +18,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'organization_id',
+        'username',
+        'phone',
         'password',
+        'role',
     ];
 
     /**
@@ -42,21 +43,35 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
-    // In User model
+    // user detail relationship 1-1
     public function userDetail()
     {
         return $this->hasOne(UserDetail::class);
     }
-
-    public function selectAllUsers()
+    
+    // user communities relationship 1-many
+    public function userCommunity()
     {
-        return User::with(['userDetail' => function ($query) {
-            $query->select('*'); // Adjust as needed
-        }])->orderBy('id', 'ASC')->get();
+        return $this->hasMany(UserCommunity::class);
+    }
+
+    public function selectAllUsers($orgId)
+    {
+        return User::with([
+            'userDetail' => function ($query) {
+                $query->select('*'); // Adjust as needed for userDetail
+            },
+            'userCommunity' => function ($query) {
+                $query->select('*'); // Adjust as needed for userCommunity
+            }
+        ])
+            ->where('organization_id', $orgId)
+            ->orderBy('id', 'ASC')
+            ->get();
     }
 }

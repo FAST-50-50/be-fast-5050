@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\API\UserController;
+use App\Http\Middleware\VerifyOrganization;
+use App\Http\Middleware\VerifyUserOrganization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -8,15 +10,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/login', [UserController::class, 'login']);
-
-// members
-Route::middleware('auth:sanctum')->get('/users', [UserController::class, 'index']);
-Route::middleware('auth:sanctum')->get('/user/{id}', [UserController::class, 'show']);
-
+// PUBLIC API
+Route::withoutMiddleware([VerifyUserOrganization::class])->group(function () {
+    Route::post('/import-csv-member', [UserController::class, 'importCSVMember']);
+});
 
 
-Route::post('/import-csv-member', [UserController::class, 'importCSVMember']);
+Route::post('/login', [UserController::class, 'login'])->middleware([VerifyOrganization::class])->withoutMiddleware([VerifyUserOrganization::class]);
+
+Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
+});
+
 
 Route::post('/notifly', function (Request $request) {
     $logFile = storage_path('logs/notifly.txt');

@@ -6,6 +6,7 @@ use Spatie\SimpleExcel\SimpleExcelReader;
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserCommunity;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +28,7 @@ class UserController extends Controller
             return ApiResponse::send(false, 'Validation error', $validator->errors());
         }
 
-        $user = User::where('email', $request->username)->first();
+        $user = User::where('username', $request->username)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return ApiResponse::send(false, 'Unauthorized');
@@ -43,8 +44,10 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $orgId = $request->get('organization')->id;
         $user = new User();
-        $members = $user->selectAllUsers();
+        $members = $user->selectAllUsers($orgId);
+
         return ApiResponse::send(true, 'Member list retrieved', $members);
     }
 
@@ -63,15 +66,16 @@ class UserController extends Controller
 
 
 
-    public function importCSVMember()
+    public function importCSVMember(Request $request)
     {
+        $orgId = $request->get('organization')->id;
         $pathToCsv = storage_path('app/public/fast_member.csv');
         $rows = SimpleExcelReader::create($pathToCsv)->getRows();
 
 
         $successCount = 0;
 
-        $rows->each(function (array $row) use (&$successCount) {
+        $rows->each(function (array $row) use (&$successCount, $orgId) {
             $totalMatchesInText = $row['Sudah berapa match kira kira yang kamu ikutin bersama FAST 50:50'] ?? null;
             $totalMatch = 0;
             if ($totalMatchesInText === '< 3') {
@@ -81,15 +85,15 @@ class UserController extends Controller
                 $totalMatch = 7;
             }
             if ($totalMatchesInText === '> 10') {
-                $totalMatch = 12;
+                $totalMatch = 16;
             }
 
             $normalizedRow = [
                 'fullname' => $row['Nama Lengkap (akan ditampilkan pada Form pendaftaran match mingguan)'] ?? null,
                 'nickname' => $row['Nama Panggilan (biar akrab)'] ?? null,
                 'birth_year' => $row['Tahun Lahir (jadi bahan pertimbangan pembagian tim)'] ?? null,
-                'whatsapp_number' => $row['Nomor Whatsapp'] ?? null,
-                'instagram_handle' => $row['Minta IG nya dong (mau dicek, udah follow fast5050bandung belom, awas aja kalo belom)'] ?? null,
+                'wa' => $row['Nomor Whatsapp'] ?? null,
+                'ig' => $row['Minta IG nya dong (mau dicek, udah follow fast5050bandung belom, awas aja kalo belom)'] ?? null,
                 'telu_relation' => $row['Hubungan dengan Telkom University (Boleh lebih dari 1)'] ?? null,
                 'proof_of_relation' => $row['Upload bukti Hubungan dengan Telkom University (Karpeg, KTM, Ijazah, dll)'] ?? null,
                 'joined_since' => $row['Kira-kira Sejak Tahun Berapa Ikut Main Futsal/Minsoc/Bola bareng FAST 50:50 (FAST Futsal berdiri sejak 2012)?'] ?? null,
@@ -112,23 +116,54 @@ class UserController extends Controller
             $normalizedRow['least_favorite_position'] = $this->convertTextToJsonArray($normalizedRow['least_favorite_position']);
             $normalizedRow['game_types'] = $this->convertTextToJsonArray($normalizedRow['game_types']);
             $ownedJerseys = $this->convertTextToJsonArray($normalizedRow['owned_jerseys']);
-            $normalizedRow['owned_jerseys'] = $ownedJerseys;
             $normalizedRow['skills'] = $this->convertTextToJsonArray($normalizedRow['skills']);
 
             $username = strtolower(str_replace(' ', '', $normalizedRow['nickname']));
             $user = User::updateOrCreate(
-                ['email' => $username], // Using generated email as a unique identifier
+                ['username' => $username], // Using generated email as a unique identifier
                 [
+                    'organization_id' => $orgId,
                     'name' => $normalizedRow['fullname'],
                     'password' => Hash::make($username), // Change this logic as needed
+                    'phone' => $normalizedRow['wa'], // Change this logic as needed
                 ]
             );
 
+            $userDetailRow = [
+                'user_id' => $user->id,
+                'fullname' => $normalizedRow['fullname'],
+                'nickname'  => $normalizedRow['nickname'],
+                'birth_year' => $normalizedRow['birth_year'],
+                'wa' => $normalizedRow['wa'],
+                'ig'    => $normalizedRow['ig'],
+                'telu_relation' => $normalizedRow['telu_relation'],
+                'skills' => $normalizedRow['skills'],
+            ];
             $userDetail = UserDetail::updateOrCreate(
                 ['user_id' => $user->id],
-                $normalizedRow
+                $userDetailRow
             );
-            if ($userDetail) {
+
+            // TODO: community id should be dynamic
+            $userCommunityRow = [
+                'user_id' => $user->id,
+                'community_id' => 1,
+                'joined_since' => $normalizedRow['joined_since'],
+                'total_matches' => $normalizedRow['total_matches'],
+                'preferred_positions' => $normalizedRow['preferred_positions'],
+                'favorite_position' => $normalizedRow['favorite_position'],
+                'least_favorite_position' => $normalizedRow['least_favorite_position'],
+                'game_types' => $normalizedRow['game_types'],
+                'favorite_team' => $normalizedRow['favorite_team'],
+                'experience_level' => $normalizedRow['experience_level'],
+                'owned_jerseys' => $ownedJerseys,
+            ];
+            $userCommunity = UserCommunity::updateOrCreate(
+                ['user_id' => $user->id],
+                $userCommunityRow
+            );
+            
+            if ($userCommunity && $userDetail) {
                 $successCount++;
             }
         });
