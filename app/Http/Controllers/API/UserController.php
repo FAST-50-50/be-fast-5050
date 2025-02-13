@@ -18,6 +18,7 @@ class UserController extends Controller
 {
     public function login(Request $request)
     {
+        $orgId = $request->get('organization')->id;
         // Validate incoming request
         $validator = Validator::make($request->all(), [
             'username' => 'required',
@@ -28,7 +29,10 @@ class UserController extends Controller
             return ApiResponse::send(false, 'Validation error', $validator->errors());
         }
 
-        $user = User::where('username', $request->username)->first();
+        $user =  User::with([
+            'userDetail',  // Eager load the userDetail relationship
+            'userCommunity' // Eager load the userCommunity relationship
+        ])->where('username', $request->username)->where('organization_id', $orgId)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return ApiResponse::send(false, 'Unauthorized');
@@ -162,7 +166,7 @@ class UserController extends Controller
                 ['user_id' => $user->id],
                 $userCommunityRow
             );
-            
+
             if ($userCommunity && $userDetail) {
                 $successCount++;
             }
