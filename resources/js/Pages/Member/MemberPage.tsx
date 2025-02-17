@@ -4,11 +4,14 @@ import { Head } from '@inertiajs/react';
 import MemberRow from './components/MemberRow';
 
 export default function MemberPage({ members }: { members: User[] }) {
+    const onMemberDetail = (id: number) => {
+        console.log(`Member ID: ${id}`);
+    };
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Fast Members
+                    Members
                 </h2>
             }
         >
@@ -19,7 +22,7 @@ export default function MemberPage({ members }: { members: User[] }) {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             <h3 className="mb-4 text-lg font-semibold">
-                                Registered Members
+                                Members of 
                             </h3>
 
                             <div className="overflow-x-auto">
@@ -32,7 +35,7 @@ export default function MemberPage({ members }: { members: User[] }) {
                                     <thead>
                                         <tr className="bg-gray-200 dark:bg-gray-700">
                                             <th className="border border-gray-300 p-2 dark:border-gray-600">
-                                                ID
+                                                #
                                             </th>
                                             <th className="border border-gray-300 p-2 dark:border-gray-600">
                                                 Name
@@ -46,12 +49,7 @@ export default function MemberPage({ members }: { members: User[] }) {
                                             <th className="border border-gray-300 p-2 dark:border-gray-600">
                                                 Relation
                                             </th>
-                                            <th className="border border-gray-300 p-2 dark:border-gray-600">
-                                                Preferred Position
-                                            </th>
-                                            <th className="border border-gray-300 p-2 dark:border-gray-600">
-                                                Position
-                                            </th>
+
                                             <th className="border border-gray-300 p-2 dark:border-gray-600">
                                                 Menu
                                             </th>
@@ -59,11 +57,15 @@ export default function MemberPage({ members }: { members: User[] }) {
                                     </thead>
                                     <tbody>
                                         {members.length > 0 ? (
-                                            members.map((member) => {
+                                            members.map((member, index) => {
                                                 return (
                                                     <MemberRow
+                                                        index={index}
                                                         key={member.id}
                                                         member={member}
+                                                        onPressDetail={
+                                                            onMemberDetail
+                                                        }
                                                     />
                                                 );
                                             })

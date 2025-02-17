@@ -53,7 +53,13 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserDetail::class);
     }
-    
+
+    // organization relationship 1-1
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
     // user communities relationship 1-many
     public function userCommunity()
     {
@@ -62,16 +68,21 @@ class User extends Authenticatable
 
     public function selectAllUsers($orgId)
     {
-        return User::with([
+        $user = User::with([
             'userDetail' => function ($query) {
                 $query->select('*'); // Adjust as needed for userDetail
             },
             'userCommunity' => function ($query) {
-                $query->select('*'); // Adjust as needed for userCommunity
+                $query->select('*');
+                //TODO: add community filter
+                $query->where('community_id', 1);
             }
         ])
             ->where('organization_id', $orgId)
             ->orderBy('id', 'ASC')
             ->get();
+
+
+        return $user;
     }
 }

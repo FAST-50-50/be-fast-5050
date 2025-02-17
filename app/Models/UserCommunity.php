@@ -15,14 +15,15 @@ class UserCommunity extends Model
         'user_id',
         'community_id',
         'joined_since',
-        'total_matchse',
+        'total_matches',
         'preferred_positions',
         'favorite_position',
         'least_favorite_position',
         'game_types',
         'favorite_team',
         'experience_level',
-        'owned_jerseys'
+        'owned_jerseys',
+        'photo'
     ];
 
     public function user()

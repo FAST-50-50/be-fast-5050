@@ -126,6 +126,7 @@ class UserController extends Controller
             $user = User::updateOrCreate(
                 ['username' => $username], // Using generated email as a unique identifier
                 [
+                    'username' => $username,
                     'organization_id' => $orgId,
                     'name' => $normalizedRow['fullname'],
                     'password' => Hash::make($username), // Change this logic as needed
