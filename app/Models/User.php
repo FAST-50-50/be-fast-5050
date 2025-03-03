@@ -66,7 +66,7 @@ class User extends Authenticatable
         return $this->hasMany(UserCommunity::class);
     }
 
-    public function selectAllUsers($orgId)
+    public function selectAllMembers($orgId)
     {
         $user = User::with([
             'userDetail' => function ($query) {
@@ -79,6 +79,7 @@ class User extends Authenticatable
             }
         ])
             ->where('organization_id', $orgId)
+            ->where('role', 'MEMBER')
             ->orderBy('id', 'ASC')
             ->get();
 

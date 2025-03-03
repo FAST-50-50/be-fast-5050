@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index(): Response
     {
         $user = new User();
-        $members = $user->selectAllUsers(config('app.org_id'));
+        $members = $user->selectAllMembers(config('app.org_id'));
    
         return Inertia::render('Member/MemberPage', [
             'members' => $members,

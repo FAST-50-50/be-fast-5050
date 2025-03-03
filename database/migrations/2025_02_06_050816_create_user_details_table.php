@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('birth_year')->nullable()->comment('Year of birth for team division considerations');
             $table->string('wa', 20)->nullable()->comment('WhatsApp number for communication');
             $table->string('ig', 100)->nullable()->comment('Instagram handle to check if they follow fast5050bandung');
-            $table->text('telu_relation')->nullable()->comment('Relationship with Telkom University');
+            $table->jsonb('telu_relation')->nullable()->comment('Relationship with Telkom University');
             $table->string('photo', 255)->nullable()->comment('Uploaded close-up photo (optional)');
-            $table->text('skills')->nullable()->comment('Skills & contributions they can offer to FAST 50:50');
+            $table->jsonb('skills')->nullable()->comment('Skills & contributions they can offer to FAST 50:50');
             $table->timestamps();
         });
     }

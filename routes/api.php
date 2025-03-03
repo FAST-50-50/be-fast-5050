@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\MatchController;
 use App\Http\Middleware\VerifyOrganization;
 use App\Http\Middleware\VerifyUserOrganization;
 use App\Models\User;
@@ -19,8 +20,12 @@ Route::withoutMiddleware([VerifyUserOrganization::class])->group(function () {
 Route::post('/login', [UserController::class, 'login'])->middleware([VerifyOrganization::class])->withoutMiddleware([VerifyUserOrganization::class]);
 
 Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(function () {
+    // USER
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
+
+    // MATCH
+    Route::get('/matches', [MatchController::class, 'index']);
 });
 
 

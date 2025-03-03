@@ -50,7 +50,7 @@ class UserController extends Controller
     {
         $orgId = $request->get('organization')->id;
         $user = new User();
-        $members = $user->selectAllUsers($orgId);
+        $members = $user->selectAllMembers($orgId);
 
         return ApiResponse::send(true, 'Member list retrieved', $members);
     }
@@ -78,7 +78,6 @@ class UserController extends Controller
 
 
         $successCount = 0;
-
         $rows->each(function (array $row) use (&$successCount, $orgId) {
             $totalMatchesInText = $row['Sudah berapa match kira kira yang kamu ikutin bersama FAST 50:50'] ?? null;
             $totalMatch = 0;
@@ -123,53 +122,56 @@ class UserController extends Controller
             $normalizedRow['skills'] = $this->convertTextToJsonArray($normalizedRow['skills']);
 
             $username = strtolower(str_replace(' ', '', $normalizedRow['nickname']));
-            $user = User::updateOrCreate(
-                ['username' => $username], // Using generated email as a unique identifier
-                [
-                    'username' => $username,
-                    'organization_id' => $orgId,
-                    'name' => $normalizedRow['fullname'],
-                    'password' => Hash::make($username), // Change this logic as needed
-                    'phone' => $normalizedRow['wa'], // Change this logic as needed
-                ]
-            );
+          
+            if ($username != '') {
+                $user = User::updateOrCreate(
+                    ['username' => $username], // Using generated email as a unique identifier
+                    [
+                        'username' => $username,
+                        'organization_id' => $orgId,
+                        'name' => $normalizedRow['fullname'],
+                        'password' => Hash::make($username), // Change this logic as needed
+                        'phone' => $normalizedRow['wa'], // Change this logic as needed
+                    ]
+                );
 
-            $userDetailRow = [
-                'user_id' => $user->id,
-                'fullname' => $normalizedRow['fullname'],
-                'nickname'  => $normalizedRow['nickname'],
-                'birth_year' => $normalizedRow['birth_year'],
-                'wa' => $normalizedRow['wa'],
-                'ig'    => $normalizedRow['ig'],
-                'telu_relation' => $normalizedRow['telu_relation'],
-                'skills' => $normalizedRow['skills'],
-            ];
-            $userDetail = UserDetail::updateOrCreate(
-                ['user_id' => $user->id],
-                $userDetailRow
-            );
+                $userDetailRow = [
+                    'user_id' => $user->id,
+                    'fullname' => $normalizedRow['fullname'],
+                    'nickname'  => $normalizedRow['nickname'],
+                    'birth_year' => $normalizedRow['birth_year'],
+                    'wa' => $normalizedRow['wa'],
+                    'ig'    => $normalizedRow['ig'],
+                    'telu_relation' => $normalizedRow['telu_relation'],
+                    'skills' => $normalizedRow['skills'],
+                ];
+                $userDetail = UserDetail::updateOrCreate(
+                    ['user_id' => $user->id],
+                    $userDetailRow
+                );
 
-            // TODO: community id should be dynamic
-            $userCommunityRow = [
-                'user_id' => $user->id,
-                'community_id' => 1,
-                'joined_since' => $normalizedRow['joined_since'],
-                'total_matches' => $normalizedRow['total_matches'],
-                'preferred_positions' => $normalizedRow['preferred_positions'],
-                'favorite_position' => $normalizedRow['favorite_position'],
-                'least_favorite_position' => $normalizedRow['least_favorite_position'],
-                'game_types' => $normalizedRow['game_types'],
-                'favorite_team' => $normalizedRow['favorite_team'],
-                'experience_level' => $normalizedRow['experience_level'],
-                'owned_jerseys' => $ownedJerseys,
-            ];
-            $userCommunity = UserCommunity::updateOrCreate(
-                ['user_id' => $user->id],
-                $userCommunityRow
-            );
+                // TODO: community id should be dynamic
+                $userCommunityRow = [
+                    'user_id' => $user->id,
+                    'community_id' => 1,
+                    'joined_since' => $normalizedRow['joined_since'],
+                    'total_matches' => $normalizedRow['total_matches'],
+                    'preferred_positions' => $normalizedRow['preferred_positions'],
+                    'favorite_position' => $normalizedRow['favorite_position'],
+                    'least_favorite_position' => $normalizedRow['least_favorite_position'],
+                    'game_types' => $normalizedRow['game_types'],
+                    'favorite_team' => $normalizedRow['favorite_team'],
+                    'experience_level' => $normalizedRow['experience_level'],
+                    'owned_jerseys' => $ownedJerseys,
+                ];
+                $userCommunity = UserCommunity::updateOrCreate(
+                    ['user_id' => $user->id],
+                    $userCommunityRow
+                );
 
-            if ($userCommunity && $userDetail) {
-                $successCount++;
+                if ($userCommunity && $userDetail) {
+                    $successCount++;
+                }
             }
         });
         return ApiResponse::send(true, 'Memberd Created', ['created_member' => $successCount]);
