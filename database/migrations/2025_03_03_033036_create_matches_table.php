@@ -32,6 +32,7 @@ return new class extends Migration
             $table->integer('min_players');
             $table->integer('price');
             $table->jsonb('social_link');
+            $table->enum('experience_level', ['Club', 'League', 'Pro', 'Elite'])->comment('Self-rated playing experience level');
             
             $table->timestamps();
         });

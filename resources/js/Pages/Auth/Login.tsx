@@ -37,11 +37,9 @@ export default function Login({
                     {status}
                 </div>
             )}
-
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="username" value="username" />
-
                     <TextInput
                         id="username"
                         name="username"
@@ -51,7 +49,6 @@ export default function Login({
                         isFocused={true}
                         onChange={(e) => setData('username', e.target.value)}
                     />
-
                     <InputError message={errors.username} className="mt-2" />
                 </div>
 

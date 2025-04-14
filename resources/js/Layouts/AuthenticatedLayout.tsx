@@ -34,8 +34,14 @@ export default function Authenticated({
                                     Dashboard
                                 </NavLink>
                                 <NavLink
+                                    href={route('sports.index')}
+                                    active={route().current('sports.index')}
+                                >
+                                    Sports
+                                </NavLink>
+                                <NavLink
                                     href={route('member')}
-                                    active={route().current('member')}
+                                    active={route().current('smember')}
                                 >
                                     Member
                                 </NavLink>

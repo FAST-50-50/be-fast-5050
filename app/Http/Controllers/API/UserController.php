@@ -58,7 +58,7 @@ class UserController extends Controller
     public function show(Request $request, $id)
     {
         $member = User::with(['userDetail' => function ($query) {
-            $query->select('*'); // Adjust as needed
+            $query->select('*');
         }])->find($id);
 
         if (!$member) {
@@ -66,6 +66,22 @@ class UserController extends Controller
         }
 
         return ApiResponse::send(true, 'Member details retrieved', $member);
+    }
+
+    public function profile(Request $request,)
+    {
+        $userId = $request->user()->id;
+
+        $user =  User::with([
+            'userDetail',
+            'userCommunity'
+        ])->find($userId);
+
+        if (!$user) {
+            return ApiResponse::send(false, 'User not found');
+        }
+
+        return ApiResponse::send(true, 'User details retrieved', $user);
     }
 
 
@@ -122,7 +138,7 @@ class UserController extends Controller
             $normalizedRow['skills'] = $this->convertTextToJsonArray($normalizedRow['skills']);
 
             $username = strtolower(str_replace(' ', '', $normalizedRow['nickname']));
-          
+
             if ($username != '') {
                 $user = User::updateOrCreate(
                     ['username' => $username], // Using generated email as a unique identifier

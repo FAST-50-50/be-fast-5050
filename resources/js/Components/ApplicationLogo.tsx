@@ -9,7 +9,7 @@ export default function ApplicationLogo(
     return (
         <img
             className="h-36"
-            src="https://i.ibb.co.com/S7QpsXQP/FAST-5050-Logo.png"
+            src="https://i.ibb.co.com/60XqWn04/Official-Logo.png"
             alt="Logo"
             {...props}
         />

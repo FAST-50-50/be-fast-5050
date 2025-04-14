@@ -23,6 +23,7 @@ Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(functi
     // USER
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::get('/profile', [UserController::class, 'profile']);
 
     // MATCH
     Route::get('/matches', [MatchController::class, 'index']);
