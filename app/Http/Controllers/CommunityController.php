@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Community;
+use App\Models\Organization;
+use App\Models\Sport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -11,7 +13,20 @@ class CommunityController extends Controller
 {
     public function index(): Response
     {
-        $communities = Community::all();
+        $communities = Community::with(['organization', 'sport', 'userCommunities'])->get()
+            ->map(function ($community) {
+                return [
+                    'id' => $community->id,
+                    'name' => $community->name,
+                    'logo' => $community->logo,
+                    'contact' => $community->contact,
+                    'contact_wa' => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $community->contact),
+                    'ig' => $community->ig,
+                    'ig_link' => 'https://instagram.com/' . ltrim($community->ig, '@'),
+                    'organization_name' => $community->organization->name,
+                    'member_count' => $community->userCommunities->count(),
+                ];
+            });
 
         return Inertia::render('Communities/Index', [
             'communities' => $communities,
@@ -20,7 +35,13 @@ class CommunityController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Communities/Create');
+        $organizations = Organization::select('id', 'name')->get();
+        $sports = Sport::select('id', 'name')->get();
+
+        return Inertia::render('Communities/Create', [
+            'organizations' => $organizations,
+            'sports' => $sports,
+        ]);
     }
 
     public function store(Request $request)
@@ -42,8 +63,13 @@ class CommunityController extends Controller
 
     public function edit(Community $community): Response
     {
+        $organizations = Organization::select('id', 'name')->get();
+        $sports = Sport::select('id', 'name')->get();
+
         return Inertia::render('Communities/Edit', [
-            'community' => $community,
+            'community' => $community->load(['organization', 'sport']),
+            'organizations' => $organizations,
+            'sports' => $sports,
         ]);
     }
 

@@ -18,11 +18,26 @@ export default function Index({ communities }: Props) {
         {
             name: 'Name',
             selector: (row: Community) => row.name,
+            cell: (row: Community) => (
+                <div className="flex items-center space-x-3">
+                    <img 
+                        src={row.logo} 
+                        alt={`${row.name} logo`} 
+                        className="h-8 w-8 rounded-full object-cover"
+                    />
+                    <span>{row.name}</span>
+                </div>
+            ),
             sortable: true,
         },
         {
-            name: 'Description',
-            selector: (row: Community) => row.description,
+            name: 'Organization',
+            selector: (row: Community) => row.organization_name,
+            sortable: true,
+        },
+        {
+            name: 'Members',
+            selector: (row: Community) => row.member_count,
             sortable: true,
         },
         {

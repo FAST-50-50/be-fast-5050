@@ -9,4 +9,14 @@ export interface Community {
     ig: string;
     created_at: string;
     updated_at: string;
+    organization_name?: string;
+    member_count?: number;
+    organization?: {
+        id: number;
+        name: string;
+    };
+    sport?: {
+        id: number;
+        name: string;
+    };
 } 

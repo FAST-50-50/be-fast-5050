@@ -40,6 +40,12 @@ export default function Authenticated({
                                     Sports
                                 </NavLink>
                                 <NavLink
+                                    href={route('communities.index')}
+                                    active={route().current('communities.index')}
+                                >
+                                    Communities
+                                </NavLink>
+                                <NavLink
                                     href={route('member')}
                                     active={route().current('smember')}
                                 >
