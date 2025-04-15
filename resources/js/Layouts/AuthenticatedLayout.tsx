@@ -41,13 +41,15 @@ export default function Authenticated({
                                 </NavLink>
                                 <NavLink
                                     href={route('communities.index')}
-                                    active={route().current('communities.index')}
+                                    active={route().current(
+                                        'communities.index',
+                                    )}
                                 >
                                     Communities
                                 </NavLink>
                                 <NavLink
                                     href={route('member')}
-                                    active={route().current('smember')}
+                                    active={route().current('member')}
                                 >
                                     Member
                                 </NavLink>

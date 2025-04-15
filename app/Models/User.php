@@ -66,23 +66,42 @@ class User extends Authenticatable
         return $this->hasMany(UserCommunity::class);
     }
 
+    public function communities()
+    {
+        return $this->hasManyThrough(Community::class, UserCommunity::class, 'user_id', 'id', 'id', 'community_id');
+    }
+
     public function selectAllMembers($orgId)
     {
         $user = User::with([
             'userDetail' => function ($query) {
-                $query->select('*'); // Adjust as needed for userDetail
+                $query->select('*');
             },
             'userCommunity' => function ($query) {
                 $query->select('*');
-                //TODO: add community filter
-                $query->where('community_id', 1);
+            },
+            'userCommunity.community' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'organization' => function ($query) {
+                $query->select('id', 'name');
             }
         ])
             ->where('organization_id', $orgId)
             ->where('role', 'MEMBER')
             ->orderBy('id', 'ASC')
-            ->get();
-
+            ->get()
+            ->map(function ($user) {
+                return [
+                    ...$user->toArray(),
+                    'communities' => $user->userCommunity->map(function ($uc) {
+                        return [
+                            'id' => $uc->community->id,
+                            'name' => $uc->community->name
+                        ];
+                    })
+                ];
+            });
 
         return $user;
     }

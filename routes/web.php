@@ -20,6 +20,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn() => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/member', [UserController::class, 'index'])->name('member');
+    Route::resource('members', UserController::class);
     Route::resource('sports', SportController::class);
     Route::resource('communities', CommunityController::class);
 });

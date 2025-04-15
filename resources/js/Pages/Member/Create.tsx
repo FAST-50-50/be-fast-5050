@@ -1,6 +1,6 @@
 import { PageProps } from '@/types';
-import CommunityForm from './Form';
+import MemberForm from './Form';
 
 export default function Create(props: PageProps) {
-    return <CommunityForm {...props} />;
+    return <MemberForm {...props} />;
 }

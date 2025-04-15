@@ -11,6 +11,8 @@ export interface Community {
     updated_at: string;
     organization_name?: string;
     member_count?: number;
+    contact_wa?: string;
+    ig_link?: string;
     organization?: {
         id: number;
         name: string;

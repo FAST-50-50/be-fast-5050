@@ -17,14 +17,14 @@ return new class extends Migration
             $table->foreignId('community_id')->nullable()->index();
             $table->string('joined_since')->nullable()->comment('Year they started playing with FAST 50:50');
             $table->integer('total_matches')->nullable()->comment('Estimated number of matches played with FAST 50:50');
-            $table->jsonb('preferred_positions')->comment('Preferred playing positions (minimum 2, except goalkeeper)');
-            $table->string('favorite_position', 50)->comment('Most favorite playing position');
+            $table->jsonb('preferred_positions')->nullable()->comment('Preferred playing positions (minimum 2, except goalkeeper)');
+            $table->string('favorite_position', 50)->nullable()->comment('Most favorite playing position');
             $table->jsonb('least_favorite_position')->nullable()->comment('Least favorite position (can be empty if willing to play anywhere)');
             $table->jsonb('game_types', 255)->nullable()->comment('Types of games they want to join');
             $table->string('favorite_team', 255)->nullable()->comment('Favorite football team (local and/or international)');
-            $table->enum('experience_level', ['Club', 'League', 'Pro', 'Elite'])->comment('Self-rated playing experience level');
+            $table->enum('experience_level', ['Club', 'League', 'Pro', 'Elite'])->nullable()->comment('Self-rated playing experience level');
             $table->jsonb('owned_jerseys')->nullable()->comment('FAST 50:50 jerseys they already have');
-            $table->string('photo');
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

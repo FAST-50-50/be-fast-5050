@@ -1,5 +1,3 @@
-import { Organization } from './Organization';
-
 export interface UserDetail {
     benefit: string;
     birth_year: string;
@@ -16,6 +14,12 @@ export interface UserDetail {
     updated_at: string;
     user_id: number;
     wa: string;
+    phone_number?: string;
+    instagram?: string;
+    favorite_position?: string;
+    total_matches?: number;
+    join_date?: string;
+    experience_level?: string;
 }
 
 export interface UserCommunity {
@@ -37,12 +41,20 @@ export interface UserCommunity {
 export interface User {
     id: number;
     username: string;
+    email: string;
+    role: string;
     phone: string;
     phone_verified_at: string | null;
-    role: string;
     created_at: string;
     updated_at: string;
     user_detail?: UserDetail;
-    user_community?: UserCommunity;
-    organization: Organization;
+    user_community?: UserCommunity[];
+    organization?: {
+        id: number;
+        name: string;
+    };
+    communities?: {
+        id: number;
+        name: string;
+    }[];
 }

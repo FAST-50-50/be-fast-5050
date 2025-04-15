@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MatchController;
+use App\Http\Controllers\API\CommunityController;
 use App\Http\Middleware\VerifyOrganization;
 use App\Http\Middleware\VerifyUserOrganization;
 use App\Models\User;
@@ -14,8 +15,8 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC API
 Route::withoutMiddleware([VerifyUserOrganization::class])->group(function () {
     Route::post('/import-csv-member', [UserController::class, 'importCSVMember']);
+    Route::get('/communities', [CommunityController::class, 'index']);
 });
-
 
 Route::post('/login', [UserController::class, 'login'])->middleware([VerifyOrganization::class])->withoutMiddleware([VerifyUserOrganization::class]);
 
@@ -27,6 +28,9 @@ Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(functi
 
     // MATCH
     Route::get('/matches', [MatchController::class, 'index']);
+
+    // COMMUNITY
+    Route::post('/communities/{community}/join', [CommunityController::class, 'join']);
 });
 
 

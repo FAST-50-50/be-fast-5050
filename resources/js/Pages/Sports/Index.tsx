@@ -1,20 +1,24 @@
 import Button from '@/Components/Button';
-import { SearchInput } from '@/Components/Table/SearchInput';
-import { TableWrapper } from '@/Components/Table/TableWrapper';
+import ConfirmationDialog from '@/Components/ConfirmationDialog';
+import { BaseTable } from '@/Components/Table/BaseTable';
+import { TableColumn } from '@/Components/Table/types';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 import { Sport } from '@/types/Sport';
 import { Head, Link } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useDeleteDialog } from '@/hooks/useDeleteDialog';
 
 interface Props extends PageProps {
     sports: Sport[];
 }
 
 export default function Index({ sports }: Props) {
-    const [filterText, setFilterText] = useState('');
+    const { deleteDialog, handleDelete, confirmDelete, closeDialog } = useDeleteDialog<Sport>({
+        onDelete: () => {},
+        routeName: 'sports.destroy',
+    });
 
-    const columns = [
+    const columns: TableColumn<Sport>[] = [
         {
             name: 'Name',
             selector: (row: Sport) => row.name,
@@ -35,29 +39,17 @@ export default function Index({ sports }: Props) {
                     >
                         Edit
                     </Link>
-                    <Link
-                        href={route('sports.destroy', row.id)}
-                        method="delete"
-                        as="button"
+                    <button
+                        onClick={() => handleDelete(row)}
                         className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                     >
                         Delete
-                    </Link>
+                    </button>
                 </div>
             ),
             ignoreRowClick: true,
         },
     ];
-
-    const filteredItems = useMemo(() => {
-        return sports.filter(
-            (item) =>
-                item.name.toLowerCase().includes(filterText.toLowerCase()) ||
-                item.description
-                    .toLowerCase()
-                    .includes(filterText.toLowerCase()),
-        );
-    }, [sports, filterText]);
 
     return (
         <AuthenticatedLayout
@@ -74,23 +66,22 @@ export default function Index({ sports }: Props) {
         >
             <Head title="Sports" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <SearchInput
-                                value={filterText}
-                                onChange={setFilterText}
-                                placeholder="Search sports..."
-                            />
-                            <TableWrapper
-                                columns={columns}
-                                data={filteredItems}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <BaseTable
+                data={sports}
+                columns={columns}
+                title="Sports"
+                createRoute={route('sports.create')}
+                createButtonText="Add New Sport"
+                searchPlaceholder="Search sports..."
+            />
+
+            <ConfirmationDialog
+                isOpen={deleteDialog.isOpen}
+                onClose={closeDialog}
+                onConfirm={confirmDelete}
+                title="Delete Sport"
+                message={`Are you sure you want to delete "${deleteDialog.item?.name}"? This action cannot be undone.`}
+            />
         </AuthenticatedLayout>
     );
 }
