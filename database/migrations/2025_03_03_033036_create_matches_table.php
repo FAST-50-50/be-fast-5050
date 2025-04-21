@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sport_id')->nullable()->index();
             $table->foreignId('community_id')->nullable()->index();
             $table->string('name', 100);
             $table->string('description', 255);
@@ -32,8 +31,7 @@ return new class extends Migration
             $table->integer('min_players');
             $table->integer('price');
             $table->jsonb('social_link');
-            $table->enum('experience_level', ['Club', 'League', 'Pro', 'Elite'])->comment('Self-rated playing experience level');
-            
+
             $table->timestamps();
         });
     }

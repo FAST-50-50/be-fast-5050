@@ -4,6 +4,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SportController;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\MatchController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('members', UserController::class);
     Route::resource('sports', SportController::class);
     Route::resource('communities', CommunityController::class);
+    Route::resource('matches', MatchController::class);
 });
 
 Route::middleware('auth')->group(function () {

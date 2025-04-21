@@ -1,7 +1,7 @@
-import { TableColumn } from './types';
-import { TableWrapper } from './TableWrapper';
-import { SearchInput } from './SearchInput';
 import { useMemo, useState } from 'react';
+import { SearchInput } from './SearchInput';
+import { TableWrapper } from './TableWrapper';
+import { TableColumn } from './types';
 
 interface BaseTableProps<T> {
     data: T[];
@@ -25,13 +25,13 @@ export function BaseTable<T>({
     const filteredItems = useMemo(() => {
         return data.filter((item) => {
             return Object.values(item).some((value) =>
-                String(value).toLowerCase().includes(filterText.toLowerCase())
+                String(value).toLowerCase().includes(filterText.toLowerCase()),
             );
         });
     }, [data, filterText]);
 
     return (
-        <div className="py-12">
+        <div className="py-6">
             <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <div className="p-6 text-gray-900 dark:text-gray-100">
@@ -40,13 +40,10 @@ export function BaseTable<T>({
                             onChange={setFilterText}
                             placeholder={searchPlaceholder}
                         />
-                        <TableWrapper
-                            columns={columns}
-                            data={filteredItems}
-                        />
+                        <TableWrapper columns={columns} data={filteredItems} />
                     </div>
                 </div>
             </div>
         </div>
     );
-} 
+}

@@ -44,4 +44,9 @@ class MatchParticipant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function userDetail()
+    {
+        return $this->hasOne(UserDetail::class, 'user_id', 'user_id');
+    }
 }

@@ -1,13 +1,22 @@
-import { BaseTable } from '@/Components/Table/BaseTable';
-import { TableColumn } from '@/Components/Table/types';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { User } from '@/types/User';
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
-import BadgeList from './components/BadgeList';
 import Button from '@/Components/Button';
 import ConfirmationDialog from '@/Components/ConfirmationDialog';
+import { BaseTable } from '@/Components/Table/BaseTable';
+import { TableColumn } from '@/Components/Table/types';
 import { useDeleteDialog } from '@/hooks/useDeleteDialog';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { User } from '@/types/User';
+import {
+    Combobox,
+    ComboboxButton,
+    ComboboxInput,
+    ComboboxOption,
+    ComboboxOptions,
+} from '@headlessui/react';
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import { Head, Link } from '@inertiajs/react';
+import clsx from 'clsx';
+import { useMemo, useState } from 'react';
+import BadgeList from './components/BadgeList';
 
 interface Props {
     members: User[];
@@ -15,11 +24,25 @@ interface Props {
 }
 
 export default function MemberPage({ members, communities }: Props) {
-    const [selectedCommunity, setSelectedCommunity] = useState<number | ''>('');
-    const { deleteDialog, handleDelete, confirmDelete, closeDialog } = useDeleteDialog<User>({
-        onDelete: () => {},
-        routeName: 'members.destroy',
-    });
+    const [selectedCommunity, setSelectedCommunity] = useState<
+        number | undefined
+    >(undefined);
+    const [query, setQuery] = useState('');
+
+    const { deleteDialog, handleDelete, confirmDelete, closeDialog } =
+        useDeleteDialog<User>({
+            onDelete: () => {},
+            routeName: 'members.destroy',
+        });
+
+    const filteredCommunities = useMemo(() => {
+        if (query === '') {
+            return communities;
+        }
+        return communities.filter((community) =>
+            community.name.toLowerCase().includes(query.toLowerCase()),
+        );
+    }, [communities, query]);
 
     const filteredMembers = selectedCommunity
         ? members.filter((member) =>
@@ -148,44 +171,68 @@ export default function MemberPage({ members, communities }: Props) {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <div className="mb-6">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        Filter Members
-                                    </h3>
-                                </div>
-                                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label
-                                            htmlFor="community-filter"
-                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                        >
-                                            Filter by Community
-                                        </label>
-                                        <select
-                                            id="community-filter"
-                                            value={selectedCommunity}
-                                            onChange={(e) =>
-                                                setSelectedCommunity(
-                                                    e.target.value
-                                                        ? Number(e.target.value)
-                                                        : '',
-                                                )
+                            <div className="px-12">
+                                <label
+                                    htmlFor="community-filter"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Community
+                                </label>
+                                <Combobox
+                                    value={selectedCommunity}
+                                    onChange={(value) =>
+                                        setSelectedCommunity(value ?? undefined)
+                                    }
+                                    onClose={() => setQuery('')}
+                                >
+                                    <div className="relative">
+                                        <ComboboxInput
+                                            className={clsx(
+                                                'w-full rounded-lg border-none bg-white/5 py-1.5 pl-3 pr-8 text-sm/6 text-white',
+                                                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
+                                            )}
+                                            displayValue={(id) => {
+                                                if (!id) return '';
+                                                return (
+                                                    communities.find(
+                                                        (c) => c.id === id,
+                                                    )?.name || ''
+                                                );
+                                            }}
+                                            onChange={(event) =>
+                                                setQuery(event.target.value)
                                             }
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
-                                        >
-                                            <option value="">All Communities</option>
-                                            {communities.map((community) => (
-                                                <option
+                                            placeholder="Search communities..."
+                                        />
+                                        <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
+                                            <ChevronDownIcon className="size-4 fill-white/60 group-data-[hover]:fill-white" />
+                                        </ComboboxButton>
+                                    </div>
+
+                                    <ComboboxOptions
+                                        anchor="bottom"
+                                        transition
+                                        className={clsx(
+                                            'w-[var(--input-width)] rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:var(--spacing-1)] empty:invisible',
+                                            'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0',
+                                        )}
+                                    >
+                                        {filteredCommunities.map(
+                                            (community) => (
+                                                <ComboboxOption
                                                     key={community.id}
                                                     value={community.id}
+                                                    className="bg-blue group flex cursor-default select-none items-center gap-2 rounded-lg px-3 py-1.5 data-[focus]:bg-white/10"
                                                 >
-                                                    {community.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
+                                                    <CheckIcon className="invisible size-4 fill-white group-data-[selected]:visible" />
+                                                    <div className="text-sm/6 text-white">
+                                                        {community.name}
+                                                    </div>
+                                                </ComboboxOption>
+                                            ),
+                                        )}
+                                    </ComboboxOptions>
+                                </Combobox>
                             </div>
 
                             <BaseTable

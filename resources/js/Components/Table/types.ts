@@ -1,23 +1,12 @@
 import { ReactNode } from 'react';
+import { TableColumn as RDTColumn } from 'react-data-table-component';
 
 export type Primitive = string | number | boolean | null | undefined;
 
-export interface TableColumn<T> {
+export type TableColumn<T> = RDTColumn<T> & {
     name: string;
-    selector?: (row: T) => string | number | boolean | null | undefined;
-    cell?: (row: T) => ReactNode;
+    selector?: (row: T) => string | number | boolean;
     sortable?: boolean;
+    cell?: (row: T) => ReactNode;
     ignoreRowClick?: boolean;
-    width?: string;
-    grow?: number;
-    right?: boolean;
-    center?: boolean;
-    compact?: boolean;
-    wrap?: boolean;
-    hide?: number | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-    format?: (row: T) => string;
-    button?: boolean;
-    allowOverflow?: boolean;
-    minWidth?: string;
-    maxWidth?: string;
-} 
+}; 

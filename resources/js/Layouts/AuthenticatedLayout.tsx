@@ -53,6 +53,12 @@ export default function Authenticated({
                                 >
                                     Member
                                 </NavLink>
+                                <NavLink
+                                    href={route('matches.index')}
+                                    active={route().current('matches.index')}
+                                >
+                                    Matches
+                                </NavLink>
                             </div>
                         </div>
 

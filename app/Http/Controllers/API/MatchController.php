@@ -18,4 +18,15 @@ class MatchController extends Controller
 
         return ApiResponse::send(true, 'Matches list retrieved', $matches);
     }
+
+    public function show($id)
+    {
+        $match = Matches::getMatchDetail($id);
+
+        if (!$match) {
+            return ApiResponse::send(false, 'Match not found', null, 404);
+        }
+
+        return ApiResponse::send(true, 'Match details retrieved', $match);
+    }
 }

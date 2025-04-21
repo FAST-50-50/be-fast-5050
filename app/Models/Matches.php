@@ -12,7 +12,6 @@ class Matches extends Model
     protected $table = 'matches';
 
     protected $fillable = [
-        'sport_id',
         'community_id',
         'name',
         'description',
@@ -56,22 +55,42 @@ class Matches extends Model
         return $this->hasMany(MatchParticipant::class, 'match_id', 'id');
     }
 
+    public function community()
+    {
+        return $this->belongsTo(Community::class);
+    }
+
+    protected static function withCommonRelations($query)
+    {
+        return $query->with([
+            'matchPositions' => function ($query) {
+                $query->select('*');
+            },
+            'matchParticipant' => function ($query) {
+                $query->select('*')->with(['userDetail' => function($q) {
+                    $q->select('user_id', 'fullname', 'nickname', 'photo');
+                }]);
+            }
+        ]);
+    }
 
     public static function allMatches($communityId)
     {
-        $user = Matches::with([
-            'matchPositions' => function ($query) {
-                $query->select('*'); // Adjust as needed for userDetail
-            },
-            'matchParticipant' => function ($query) {
-                $query->select('*');
-            }
-        ])
-            ->where('community_id', $communityId)
-            ->orderBy('id', 'DESC')
-            ->get();
+        $query = self::withCommonRelations(new static());
 
+        if ($communityId !== null) {
+            $query->where('community_id', $communityId);
+        }
 
-        return $user;
+        return $query->orderBy('id', 'DESC')->get();
+    }
+
+    public static function getMatchDetail($id)
+    {
+        return self::withCommonRelations(new static())
+            ->with(['community' => function($q) {
+                $q->select('id', 'name', 'logo');
+            }])
+            ->find($id);
     }
 }

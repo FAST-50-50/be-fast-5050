@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(functi
 
     // MATCH
     Route::get('/matches', [MatchController::class, 'index']);
+    Route::get('/matches/{id}', [MatchController::class, 'show']);
 
     // COMMUNITY
     Route::post('/communities/{community}/join', [CommunityController::class, 'join']);
