@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('venue', 100);
             $table->string('address', 100);
             $table->string('location_link', 100);
+            $table->string('location_image', 200);
             $table->date('date');
             $table->time('time');
             $table->boolean('with_fg');

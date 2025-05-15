@@ -23,7 +23,8 @@ class UserCommunity extends Model
         'favorite_team',
         'experience_level',
         'owned_jerseys',
-        'photo'
+        'photo',
+        'rating'
     ];
 
     public function user()

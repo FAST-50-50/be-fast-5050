@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC API
 Route::withoutMiddleware([VerifyUserOrganization::class])->group(function () {
     Route::post('/import-csv-member', [UserController::class, 'importCSVMember']);
+    Route::post('/generate-play-count', [UserController::class, 'generatePlayCount']);
     Route::get('/communities', [CommunityController::class, 'index']);
 });
 
@@ -29,6 +30,8 @@ Route::middleware(['auth:sanctum', VerifyUserOrganization::class])->group(functi
     // MATCH
     Route::get('/matches', [MatchController::class, 'index']);
     Route::get('/matches/{id}', [MatchController::class, 'show']);
+    Route::post('/matches/{id}/join', [MatchController::class, 'join']);
+    
 
     // COMMUNITY
     Route::post('/communities/{community}/join', [CommunityController::class, 'join']);

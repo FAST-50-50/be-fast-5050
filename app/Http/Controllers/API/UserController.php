@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+
+
 // API
 
 class UserController extends Controller
@@ -192,6 +194,90 @@ class UserController extends Controller
         });
         return ApiResponse::send(true, 'Memberd Created', ['created_member' => $successCount]);
     }
+
+    public function generatePlayCount(Request $request)
+    {
+        $directory = storage_path('app/public/drawings');
+
+        // Check if the directory exists
+        if (!is_dir($directory)) {
+            die('Directory does not exist!');
+        }
+
+        // Use wildcard to find any file (use *.xlsx to match only Excel files)
+        $files = glob($directory . '/*.xlsx');  // Add '/*' to match files inside the folder
+
+        if (empty($files)) {
+            die('No files found!');
+        }
+
+        $players = []; // Initialize an array to track players with play counts and positions
+
+        // Iterate through each file in the directory
+        foreach ($files as $file) {
+            // Open the current file
+            $rows = SimpleExcelReader::create($file)->getRows();
+
+            // Iterate through the rows of the current file
+            foreach ($rows as $row) {
+                // Get the player's name and position(s)
+                $name = $row['Player']; // Assuming the name is in the 'Player' column
+                $position = $row['Position']; // Assuming the position is in the 'Position' column
+
+                // If the player already exists, increment the play count and add the position if it's not already there
+                if (isset($players[$name])) {
+                    $players[$name]['play_count']++;
+                    // Avoid duplicating positions
+                    if (!in_array($position, $players[$name]['positions'])) {
+                        $players[$name]['positions'][] = $position;
+                    }
+                } else {
+                    // If it's the first time we encounter the player, initialize their data
+                    $players[$name] = [
+                        'play_count' => 1,
+                        'positions' => [$position],
+                    ];
+                }
+            }
+        }
+
+        // Convert the players data to an array format
+        $playersArray = [];
+        foreach ($players as $name => $data) {
+            $playersArray[] = [
+                'name' => $name,
+                'play_count' => $data['play_count'],
+                'positions' => implode(', ', $data['positions']),  // Convert positions array to a string
+            ];
+        }
+
+        // Order players by play_count in descending order
+        usort($playersArray, function ($a, $b) {
+            return $b['play_count'] - $a['play_count'];
+        });
+
+        // Create a CSV file from the $playersArray
+        $csvFilePath = storage_path('app/public/players_play_count.csv');
+        $file = fopen($csvFilePath, 'w');
+
+        // Add the header row
+        fputcsv($file, ['Name', 'Play Count', 'Positions']);
+
+        // Write data rows
+        foreach ($playersArray as $player) {
+            fputcsv($file, $player);
+        }
+
+        fclose($file);
+
+        // Return success response with CSV file path
+        return ApiResponse::send(true, 'CSV Generated Successfully', ['csv_file' => $csvFilePath]);
+    }
+
+
+
+
+
 
 
     private function convertTextToJsonArray($text)

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('experience_level', ['Club', 'League', 'Pro', 'Elite'])->nullable()->comment('Self-rated playing experience level');
             $table->jsonb('owned_jerseys')->nullable()->comment('FAST 50:50 jerseys they already have');
             $table->string('photo')->nullable();
+            $table->float('rating')->nullable();
             $table->timestamps();
         });
     }

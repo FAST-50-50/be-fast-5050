@@ -49,4 +49,20 @@ class MatchParticipant extends Model
     {
         return $this->hasOne(UserDetail::class, 'user_id', 'user_id');
     }
+
+    public static function joinMatch($userId, $matchId, $position)
+    {
+        $matchParticipant = new self();
+        $matchParticipant->user_id = $userId;
+        $matchParticipant->match_id = $matchId;
+        $matchParticipant->position = $position;
+        return $matchParticipant->save();
+    }
+
+    public static function isAlreadyJoined($userId, $matchId)
+    {
+        return self::where('user_id', $userId)
+            ->where('match_id', $matchId)
+            ->exists();
+    }
 }

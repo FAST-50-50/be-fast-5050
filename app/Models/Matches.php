@@ -20,6 +20,7 @@ class Matches extends Model
         'venue',
         'address',
         'location_link',
+        'location_image',
         'date',
         'time',
         'with_fg',
