@@ -74,13 +74,14 @@ class Matches extends Model
                         $q->select('user_id', 'fullname', 'nickname', 'photo');
                     }])
                     ->orderByRaw("
-            CASE status
-                WHEN 'JOINED' THEN 1
-                WHEN 'PENDING' THEN 2
-                WHEN 'CANCELED' THEN 3
-                ELSE 4
-            END
-        ");
+                        CASE status
+                            WHEN 'JOINED' THEN 1
+                            WHEN 'PENDING' THEN 2
+                            WHEN 'CANCELED' THEN 3
+                            ELSE 4
+                        END,
+                        created_at DESC
+                    ");
             }
 
         ]);

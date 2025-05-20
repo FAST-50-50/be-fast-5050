@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SportController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\MatchController;
+use App\Http\Controllers\MatchParticipantController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +26,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('sports', SportController::class);
     Route::resource('communities', CommunityController::class);
     Route::resource('matches', MatchController::class);
+    Route::put('/matches/{match}/participants/{participant}', [MatchParticipantController::class, 'update'])
+        ->name('matches.participants.update');
 });
 
 Route::middleware('auth')->group(function () {

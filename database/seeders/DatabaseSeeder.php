@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'username' => 'testusername',
         // ]);
-        $this->call([OrganizationsTableSeeder::class, SportsTableSeeder::class, CommunitiesTableSeeder::class, MatchSeeder::class]);
+        $this->call([
+            MatchSeeder::class,
+            MatchParticipantSeeder::class,
+        ]);
     }
 }

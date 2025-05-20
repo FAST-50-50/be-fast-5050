@@ -156,7 +156,7 @@ class MatchController extends Controller
 
     public function show(Matches $match): Response
     {
-        $match->load(['community.sport', 'matchPositions', 'matchParticipant']);
+        $match->load(['community.sport', 'matchPositions', 'matchParticipant.userDetail']);
 
         return Inertia::render('Matches/Show', [
             'match' => [
@@ -192,7 +192,20 @@ class MatchController extends Controller
                         'quota' => $position->quota,
                     ];
                 }),
-                'participants' => $match->matchParticipant->count(),
+                'participants' => $match->matchParticipant->map(function ($participant) {
+                    return [
+                        'id' => $participant->id,
+                        'user_id' => $participant->user_id,
+                        'position' => $participant->position,
+                        'status' => $participant->status,
+                        'user' => $participant->userDetail ? [
+                            'id' => $participant->userDetail->user_id,
+                            'name' => $participant->userDetail->fullname,
+                            'nickname' => $participant->userDetail->nickname,
+                            'photo' => $participant->userDetail->photo,
+                        ] : null,
+                    ];
+                }),
             ],
         ]);
     }

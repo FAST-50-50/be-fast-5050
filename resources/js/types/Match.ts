@@ -33,7 +33,18 @@ export interface Match {
         position: string;
         quota: number;
     }[];
-    participants: number;
+    participants: Array<{
+        id: number;
+        user_id: number;
+        position: string;
+        status: 'JOINED' | 'PENDING' | 'CANCELED';
+        user?: {
+            id: number;
+            name: string;
+            nickname: string;
+            photo: string;
+        };
+    }>;
 }
 
 export interface MatchPosition {
@@ -56,7 +67,7 @@ export interface MatchParticipant {
     assist: number | null;
     clean_sheet: number | null;
     rating: number | null;
-    status: 'JOINED' | 'PAID' | 'CANCELED' | null;
+    status: 'JOINED' | 'PENDING' | 'CANCELED' | null;
     created_at: string;
     updated_at: string;
     user?: {

@@ -53,8 +53,13 @@ class MatchController extends Controller
         }
 
         $isAlreadyJoined = MatchParticipant::isAlreadyJoined($user->id, $id);
+        
         if ($isAlreadyJoined) {
-            return ApiResponse::send(false, 'You have already joined this match', null, 400);
+            // update status if its exist
+            $matchParticipant = MatchParticipant::find($isAlreadyJoined->id);
+            MatchParticipant::rejoinMatch($matchParticipant->id, $position);
+
+            return ApiResponse::send(false, 'Successfully rejoined the match', null, 400);
         }
 
         $join = MatchParticipant::joinMatch($user->id, $id, $position);
