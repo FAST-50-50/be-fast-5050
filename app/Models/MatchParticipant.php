@@ -52,10 +52,22 @@ class MatchParticipant extends Model
 
     public static function joinMatch($userId, $matchId, $position)
     {
+        $defaultStatus = 'PENDING';
         $matchParticipant = new self();
         $matchParticipant->user_id = $userId;
         $matchParticipant->match_id = $matchId;
         $matchParticipant->position = $position;
+        $matchParticipant->status = $defaultStatus;
+        return $matchParticipant->save();
+    }
+
+    public static function cancelMatch($matchParticipantId)
+    {
+        $matchParticipant = self::find($matchParticipantId);
+        if (!$matchParticipant) {
+            return false;
+        }
+        $matchParticipant->status = 'CANCELED';
         return $matchParticipant->save();
     }
 
@@ -64,5 +76,11 @@ class MatchParticipant extends Model
         return self::where('user_id', $userId)
             ->where('match_id', $matchId)
             ->exists();
+    }
+    public static function getJoinDetail($userId, $matchId)
+    {
+        return self::where('user_id', $userId)
+            ->where('match_id', $matchId)
+            ->first();
     }
 }

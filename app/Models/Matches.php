@@ -67,11 +67,22 @@ class Matches extends Model
             'matchPositions' => function ($query) {
                 $query->select('*');
             },
+            // add order by in match participant
             'matchParticipant' => function ($query) {
-                $query->select('*')->with(['userDetail' => function($q) {
-                    $q->select('user_id', 'fullname', 'nickname', 'photo');
-                }]);
+                $query->select('*')
+                    ->with(['userDetail' => function ($q) {
+                        $q->select('user_id', 'fullname', 'nickname', 'photo');
+                    }])
+                    ->orderByRaw("
+            CASE status
+                WHEN 'JOINED' THEN 1
+                WHEN 'PENDING' THEN 2
+                WHEN 'CANCELED' THEN 3
+                ELSE 4
+            END
+        ");
             }
+
         ]);
     }
 
@@ -89,7 +100,7 @@ class Matches extends Model
     public static function getMatchDetail($id)
     {
         return self::withCommonRelations(new static())
-            ->with(['community' => function($q) {
+            ->with(['community' => function ($q) {
                 $q->select('id', 'name', 'logo');
             }])
             ->find($id);

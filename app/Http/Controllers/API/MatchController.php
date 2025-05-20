@@ -20,9 +20,19 @@ class MatchController extends Controller
         return ApiResponse::send(true, 'Matches list retrieved', $matches);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $user = $request->user();
         $match = Matches::getMatchDetail($id);
+        //add join detail, if user already joined
+        if ($user) {
+            $isAlreadyJoined = MatchParticipant::isAlreadyJoined($user->id, $id);
+            if ($isAlreadyJoined) {
+                // add join detail from match_participant
+                $match->join_detail = MatchParticipant::getJoinDetail($user->id, $id);
+            }
+        }
+
 
         if (!$match) {
             return ApiResponse::send(false, 'Match not found', null, 404);
@@ -58,6 +68,25 @@ class MatchController extends Controller
             return ApiResponse::send(true, 'Successfully joined the match', $match);
         } else {
             return ApiResponse::send(false, 'Failed to join the match', null, 400);
+        }
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        $user = $request->user();
+        $matchParticipant = MatchParticipant::find($id);
+        if (!$matchParticipant) {
+            return ApiResponse::send(false, 'You havent join to this match yet', null, 404);
+        }
+        if ($matchParticipant->user_id != $user->id) {
+            return ApiResponse::send(false, 'You are not allowed to cancel this match', null, 403);
+        }
+        $cancel = MatchParticipant::cancelMatch($id);
+        if ($cancel) {
+            // SUCCESS Response
+            return ApiResponse::send(true, 'Successfully canceled the match', null);
+        } else {
+            return ApiResponse::send(false, 'Failed to cancel the match', null, 400);
         }
     }
 }
